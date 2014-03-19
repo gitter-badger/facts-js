@@ -1,0 +1,30 @@
+{
+    "name": "facts-js",
+    "version": "1.0.0",
+    "description": "Rules engine",
+    "main": "facts.js",
+    "author": "Jason Horman",
+    "keywords": [
+        "facts",
+        "factsjs",
+        "facts.js",
+        "rules"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:hapyak/facts-js.git"
+    },
+    "homepage": "https://github.com/hapyak/facts-js",
+    "dependencies": {
+        "lodash-node": "^2.4.1"
+    },
+    "devDependencies": {
+        "grunt": "*",
+        "grunt-contrib-jshint": "*",
+        "grunt-contrib-compress": ">=0.5.2",
+        "grunt-mocha": "~0.4.1",
+        "grunt-mocha-test": "~0.7.0",
+        "mocha": "~1.14.0"
+    },
+    "license": "MIT"
+}
