@@ -1,4 +1,4 @@
-/*global define:true, require:true, module:true, _:true*/
+/*global _:true*/
 (function () {
     'use strict';
 

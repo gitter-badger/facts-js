@@ -1,6 +1,6 @@
-/*global require,module,describe,it,before,beforeEach*/
+/*global describe,it,beforeEach*/
 (function () {
-    "use strict";
+    'use strict';
 
     var assert = require('assert'),
         FactsJS = require('./facts'),
@@ -13,7 +13,8 @@
             engine = new FactsJS.RulesEngine({
                 rules: rules,
                 facts: {
-                    x: 1, y: 1
+                    x: 1,
+                    y: 1
                 }
             });
         });

@@ -1,5 +1,3 @@
-/*global require*/
-/*global require,module,describe,it,before,beforeEach*/
 (function () {
     'use strict';
 
