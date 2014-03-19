@@ -1,4 +1,4 @@
-# FactsJS -- Simple Javascript Rules Engine
+# FactsJS -- JS Rules Engine
 
 [![NPM](https://nodei.co/npm/facts-js.png)](https://nodei.co/npm/facts-js/)
 
