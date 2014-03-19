@@ -3,7 +3,7 @@ facts-js
 
 FactsJS Javascript Rules Engine
 
-## Installation & usage
+## Installation
 
 In browsers:
 
@@ -32,6 +32,30 @@ In an AMD loader:
 require(['facts'], function(FactsJS) {
 
 });
+```
+
+## Usage
+
+```js
+var FactsJS = require('facts-js');
+
+rules = new FactsJS.Rules({
+    rules: {
+        name: 'x > 2',
+        condition: FactsJS.Conditions.gt('x', 2),
+        fire: FactsJS.RulesEngine.setFact('y', 10)
+    }
+});
+
+engine = new FactsJS.RulesEngine({
+    rules: rules,
+    facts: {
+        x: 1, y: 1
+    }
+});
+
+engine.fact('x', 3);
+// engine.facts.y == 10
 ```
 
 ## Tests
