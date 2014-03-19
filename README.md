@@ -1,7 +1,6 @@
-facts-js
-========
+# FactsJS -- Simple Javascript Rules Engine
 
-FactsJS Javascript Rules Engine
+[![NPM](https://nodei.co/npm/facts-js.png)](https://nodei.co/npm/facts-js/)
 
 ## Installation
 
@@ -58,6 +57,11 @@ engine.fact('x', 3);
 // engine.facts.y == 10
 ```
 
-## Tests
+## Running Tests
 
 gulp test
+
+
+## Dependencies
+
+* [lodash](http://lodash.com/)
