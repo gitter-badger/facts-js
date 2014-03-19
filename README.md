@@ -1,6 +1,6 @@
 # FactsJS -- JS Rules Engine
 
-[![NPM](https://nodei.co/npm/facts-js.png)](https://nodei.co/npm/facts-js/)
+[![NPM](https://nodei.co/npm/facts-js.png?r=1)](https://nodei.co/npm/facts-js/)
 
 ## Installation
 
