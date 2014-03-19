@@ -39,11 +39,11 @@ require(['facts'], function(FactsJS) {
 var FactsJS = require('facts-js');
 
 rules = new FactsJS.Rules({
-    rules: {
+    rules: [{
         name: 'x > 2',
         condition: FactsJS.Conditions.gt('x', 2),
         fire: FactsJS.RulesEngine.setFact('y', 10)
-    }
+    }]
 });
 
 engine = new FactsJS.RulesEngine({
@@ -54,7 +54,7 @@ engine = new FactsJS.RulesEngine({
 });
 
 engine.fact('x', 3);
-// engine.facts.y == 10
+console.log(engine.facts.y); // should print 10
 ```
 
 ## Running Tests
