@@ -23,7 +23,7 @@ npm ln facts-js
 In [Node.js](http://nodejs.org/) & [Ringo](http://ringojs.org/):
 
 ```js
-var _ = require('facts');
+var FactsJS = require('facts');
 ```
 
 In an AMD loader:
