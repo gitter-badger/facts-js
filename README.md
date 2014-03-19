@@ -60,4 +60,4 @@ engine.fact('x', 3);
 
 ## Tests
 
-grunt test
+gulp test

@@ -19,11 +19,9 @@
         "lodash-node": "^2.4.1"
     },
     "devDependencies": {
-        "grunt": "*",
-        "grunt-contrib-jshint": "*",
-        "grunt-contrib-compress": ">=0.5.2",
-        "grunt-mocha": "~0.4.1",
-        "grunt-mocha-test": "~0.7.0",
+        "gulp": "*",
+        "gulp-mocha": "*",
+        "gulp-jshint": "*",
         "mocha": "~1.14.0"
     },
     "license": "MIT"

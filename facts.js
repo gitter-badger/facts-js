@@ -1,19 +1,6 @@
 /*global define:true, require:true, module:true, _:true*/
 (function () {
-    "use strict";
-
-    if (typeof module !== 'undefined' && module.exports) { // nodejs
-        var lodash = {
-            each: require('lodash-node/modern/collections/forEach'),
-            isArray: require('lodash-node/modern/objects/isArray'),
-            cloneDeep: require('lodash-node/modern/objects/cloneDeep')
-        };
-        module.exports = declare(lodash);
-    } else if (typeof define !== 'undefined' && define.amd) {
-        define(['lodash'], declare);
-    } else {
-        window.FactsJS = declare(_);
-    }
+    'use strict';
 
     function declare(_) {
         function Rules(options) {
@@ -167,5 +154,18 @@
             RulesEngine: RulesEngine,
             Conditions: Conditions
         };
+    }
+
+    if (typeof module !== 'undefined' && module.exports) { // nodejs
+        var lodash = {
+            each: require('lodash-node/modern/collections/forEach'),
+            isArray: require('lodash-node/modern/objects/isArray'),
+            cloneDeep: require('lodash-node/modern/objects/cloneDeep')
+        };
+        module.exports = declare(lodash);
+    } else if (typeof define !== 'undefined' && define.amd) {
+        define(['lodash'], declare);
+    } else {
+        window.FactsJS = declare(_);
     }
 })();
