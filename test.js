@@ -7,6 +7,13 @@
         rules,
         engine;
 
+    function MockPromise(fn) {
+        this.then = function (callback) {
+            var result = fn();
+            callback(result);
+        };
+    }
+
     describe('FactsJS', function () {
         beforeEach(function () {
             rules = new FactsJS.Rules();
@@ -118,6 +125,8 @@
             });
 
             it('should skip evaluating rule when condition doesnt watch that fact', function () {
+                var processCount = 0;
+
                 rules.add({
                     name: 'x > 2',
                     condition: FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('x'), 2),
@@ -125,10 +134,60 @@
                     }
                 });
 
+                engine.addEventListener('process', function () {
+                    processCount++;
+                });
+
+                assert.equal(processCount, 0, 'starts at 0');
                 engine.fact('x', 3);
-                assert.equal(engine.statistics.ruleSkips, 0);
+                assert.equal(processCount, 1, 'increments b/c rule watches x');
                 engine.fact('y', 3);
-                assert.equal(engine.statistics.ruleSkips, 1, 'no rules depend on y');
+                assert.equal(processCount, 1, 'doesnt increment b/c nothing cares about y');
+            });
+        });
+
+        describe('Using promises', function () {
+            it('should set y to 10 when x>2 rule fires', function () {
+                rules.add({
+                    name: 'x > 2',
+                    condition: function (facts) {
+                        return new MockPromise(function () {
+                            return facts.x > 2;
+                        });
+                    },
+                    fire: function () {
+                        engine.fact('y', 10);
+                    }
+                });
+
+                engine.fact('x', 3);
+                assert.equal(engine.facts.y, 10);
+            });
+        });
+
+        describe('Using listeners', function () {
+            it('should fire change events when facts are added', function () {
+                var numChanges = 0;
+
+                rules.add([{
+                    name: 'x > 2',
+                    condition: FactsJS.Conditions.gt('x', 2),
+                    fire: FactsJS.RulesEngine.setFact('y', 10)
+                }]);
+
+                engine.addEventListener('change', function (engine, changes) {
+                    if (changes.x) {
+                        assert.equal(changes.x, 3);
+                    } else if (changes.y) {
+                        assert.equal(changes.y, 10);
+                    } else {
+                        assert.fail(changes, {}, 'change should have been x or y');
+                    }
+                    numChanges++;
+                });
+
+                engine.fact('x', 3);
+                assert.equal(numChanges, 2, 'one change for x, one change for y');
             });
         });
     });

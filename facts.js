@@ -17,6 +17,30 @@
                 }
             }
 
+            function processRule(engine, rule) {
+                var result = rule.condition(engine.facts);
+                if (_.isFunction(result.then)) {
+                    result.then(function (promiseResult) {
+                        maybeFireRule(engine, rule, promiseResult);
+                    });
+                } else {
+                    maybeFireRule(engine, rule, result);
+                }
+                engine.notify('process', {
+                    rule: rule
+                });
+            }
+
+            function maybeFireRule(engine, rule, conditionResult) {
+                if (conditionResult && conditionResult !== engine.state[rule.id]) {
+                    rule.fire(engine);
+                    engine.notify('fire', {
+                        rule: rule
+                    });
+                }
+                engine.state[rule.id] = conditionResult;
+            }
+
             this.add = function (rule) {
                 if (_.isArray(rule)) {
                     _.each(rule, this.add, this);
@@ -30,14 +54,7 @@
             this.fire = function (engine, changes) {
                 _.each(rules, function (rule) {
                     if (shouldEvaluateCondition(rule, changes)) {
-                        var result = rule.condition(engine.facts);
-                        // only fire a rule if its condition result changes
-                        if (result && result !== engine.state[rule.id]) {
-                            rule.fire(engine);
-                        }
-                        engine.state[rule.id] = result;
-                    } else {
-                        engine.statistics.ruleSkips++;
+                        processRule(engine, rule);
                     }
                 });
             };
@@ -56,13 +73,14 @@
                 inFire = false,
                 queueFire = false,
                 queuedChanges = {},
-                statistics = {
-                    ruleSkips: 0
+                listeners = {
+                    change: [],
+                    process: [],
+                    fire: []
                 };
 
             this.facts = facts;
             this.state = state;
-            this.statistics = statistics;
 
             function fire(changes) {
                 var shouldFire;
@@ -98,6 +116,7 @@
                     facts[name] = value;
                     try {
                         fire(changes);
+                        this.notify('change', changes);
                         return true;
                     } catch (e) {
                         // if asserting a fact throws, reset state
@@ -107,6 +126,24 @@
                     }
                 }
                 return false;
+            };
+
+            this.addEventListener = function (type, callback) {
+                listeners[type].push(callback);
+            };
+
+            this.notify = function (type, arg) {
+                _.each(listeners[type], function (callback) {
+                    callback(self, arg);
+                });
+            };
+
+            this.removeEventListener = function (type, callback) {
+                var listener_list = listeners[type],
+                    i = listener_list.indexOf(callback);
+                if (i >= 0) {
+                    listener_list.splice(i, 1);
+                }
             };
         }
 
@@ -200,6 +237,7 @@
         var lodash = {
             each: require('lodash-node/modern/collections/forEach'),
             isArray: require('lodash-node/modern/objects/isArray'),
+            isFunction: require('lodash-node/modern/objects/isFunction'),
             keys: require('lodash-node/modern/objects/keys'),
             extend: require('lodash-node/modern/objects/assign'),
             cloneDeep: require('lodash-node/modern/objects/cloneDeep'),
