@@ -32,6 +32,7 @@
             }
 
             function maybeFireRule(engine, rule, conditionResult) {
+                conditionResult = !!conditionResult;
                 if (conditionResult && conditionResult !== engine.state[rule.id]) {
                     rule.fire(engine);
                     engine.notify('fire', {
