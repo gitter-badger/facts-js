@@ -19,6 +19,16 @@
             });
         });
 
+        describe('And Conditions', function () {
+            it('should collect all dependencies', function () {
+                var anded = FactsJS.Conditions.and(
+                    FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('w'), FactsJS.RulesEngine.fact('x')),
+                    FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('y'), FactsJS.RulesEngine.fact('z'))
+                );
+                assert.deepEqual(anded.deps, ['w', 'x', 'y', 'z']);
+            });
+        });
+
         it('should initialize with facts for x and y', function () {
             assert.equal(engine.facts.x, 1);
             assert.equal(engine.facts.y, 1);
@@ -105,6 +115,20 @@
                 assert.equal(engine.facts.z, undefined);
                 engine.fact('y', 3);
                 assert.equal(engine.facts.z, 10);
+            });
+
+            it('should skip evaluating rule when condition doesnt watch that fact', function () {
+                rules.add({
+                    name: 'x > 2',
+                    condition: FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('x'), 2),
+                    fire: function () {
+                    }
+                });
+
+                engine.fact('x', 3);
+                assert.equal(engine.statistics.ruleSkips, 0);
+                engine.fact('y', 3);
+                assert.equal(engine.statistics.ruleSkips, 1, 'no rules depend on y');
             });
         });
     });
