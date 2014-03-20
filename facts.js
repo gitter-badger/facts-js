@@ -30,9 +30,7 @@
 
             // add the rules passed into the constructor
             if (options && options.rules) {
-                _.each(options.rules, function (rule) {
-                    this.add(rule);
-                }, this);
+                this.add(options.rules);
             }
         }
 

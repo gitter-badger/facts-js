@@ -39,19 +39,6 @@
             assert.equal(engine.facts.y, 10, 'should have changed since x is now > 3');
         });
 
-        describe('Using FactsJS.RulesEngine.fact', function () {
-            it('should set y to 10 when x>2 rule fires', function () {
-                rules.add({
-                    name: 'x > 2',
-                    condition: FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('x'), 2),
-                    fire: FactsJS.RulesEngine.setFact('y', 10)
-                });
-
-                engine.fact('x', 3);
-                assert.equal(engine.facts.y, 10);
-            });
-        });
-
         it('should fire multiple rules', function () {
             rules.add([
                 {
@@ -93,6 +80,32 @@
                 assert.equal(engine.facts.x, 1);
                 assert.equal(engine.facts.y, 1);
             }
+        });
+
+        describe('Using FactsJS.RulesEngine.fact', function () {
+            it('should set y to 10 when x>2 rule fires', function () {
+                rules.add({
+                    name: 'x > 2',
+                    condition: FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('x'), 2),
+                    fire: FactsJS.RulesEngine.setFact('y', 10)
+                });
+
+                engine.fact('x', 3);
+                assert.equal(engine.facts.y, 10);
+            });
+
+            it('should set z to 10 when x == y', function () {
+                rules.add({
+                    name: 'x > 2',
+                    condition: FactsJS.Conditions.eq(FactsJS.RulesEngine.fact('x'), FactsJS.RulesEngine.fact('y')),
+                    fire: FactsJS.RulesEngine.setFact('z', 10)
+                });
+
+                engine.fact('x', 3);
+                assert.equal(engine.facts.z, undefined);
+                engine.fact('y', 3);
+                assert.equal(engine.facts.z, 10);
+            });
         });
     });
 })();
