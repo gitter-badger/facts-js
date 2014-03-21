@@ -54,7 +54,7 @@ engine = new FactsJS.RulesEngine({
 });
 
 engine.fact('x', 3);
-console.log(engine.facts.y); // should print 10
+console.log(engine.fact('y')); // should print 10
 ```
 
 ## Running Tests
