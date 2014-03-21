@@ -110,7 +110,9 @@
             }
 
             this.fact = function (name, value) {
-                if (facts[name] !== value) {
+                if (value === undefined) {
+                    return facts[name];
+                } else if (facts[name] !== value) {
                     var changes = {},
                         oldFacts = _.cloneDeep(facts);  // probably needs to be a deep clone
                     changes[name] = value;
@@ -125,8 +127,8 @@
                         this.facts = oldFacts;
                         throw e;
                     }
+                    return false;
                 }
-                return false;
             };
 
             this.addEventListener = function (type, callback) {

@@ -37,8 +37,8 @@
         });
 
         it('should initialize with facts for x and y', function () {
-            assert.equal(engine.facts.x, 1);
-            assert.equal(engine.facts.y, 1);
+            assert.equal(engine.fact('x'), 1);
+            assert.equal(engine.fact('y'), 1);
         });
 
         it('should set y to 10 when x>2 rule fires', function () {
@@ -49,11 +49,11 @@
             });
 
             engine.fact('x', 2);
-            assert.equal(engine.facts.x, 2, 'should not have changed');
-            assert.equal(engine.facts.y, 1, 'should not have changed');
+            assert.equal(engine.fact('x'), 2, 'should not have changed');
+            assert.equal(engine.fact('y'), 1, 'should not have changed');
             engine.fact('x', 3);
-            assert.equal(engine.facts.x, 3, 'should have changed since x is now > 3');
-            assert.equal(engine.facts.y, 10, 'should have changed since x is now > 3');
+            assert.equal(engine.fact('x'), 3, 'should have changed since x is now > 3');
+            assert.equal(engine.fact('y'), 10, 'should have changed since x is now > 3');
         });
 
         it('should fire multiple rules', function () {
@@ -94,8 +94,8 @@
                 engine.fact('x', 10);
                 assert.fail();
             } catch (e) {
-                assert.equal(engine.facts.x, 1);
-                assert.equal(engine.facts.y, 1);
+                assert.equal(engine.fact('x'), 1);
+                assert.equal(engine.fact('y'), 1);
             }
         });
 
@@ -108,7 +108,7 @@
                 });
 
                 engine.fact('x', 3);
-                assert.equal(engine.facts.y, 10);
+                assert.equal(engine.fact('y'), 10);
             });
 
             it('should set z to 10 when x == y', function () {
@@ -161,7 +161,7 @@
                 });
 
                 engine.fact('x', 3);
-                assert.equal(engine.facts.y, 10);
+                assert.equal(engine.fact('y'), 10);
             });
         });
 
