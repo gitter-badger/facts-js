@@ -68,7 +68,7 @@
 
         function RulesEngine(options) {
             var self = this,
-                facts = options && options.facts || {},
+                facts = {},
                 rules = options.rules || new Rules(),
                 state = {},
                 inFire = false,
@@ -127,8 +127,8 @@
                         this.facts = oldFacts;
                         throw e;
                     }
-                    return false;
                 }
+                return false;
             };
 
             this.addEventListener = function (type, callback) {
@@ -148,6 +148,13 @@
                     listener_list.splice(i, 1);
                 }
             };
+
+            // if facts were passed into contructor, assert them
+            if (options && options.facts) {
+                _.each(options.facts, function (value, name) {
+                    this.fact(name, value);
+                }, this);
+            }
         }
 
         function resolveLeft(facts, left) {

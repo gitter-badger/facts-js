@@ -3,9 +3,7 @@
     'use strict';
 
     var assert = require('assert'),
-        FactsJS = require('./facts'),
-        rules,
-        engine;
+        FactsJS = require('./facts');
 
     function MockPromise(fn) {
         this.then = function (callback) {
@@ -14,15 +12,44 @@
         };
     }
 
+    describe('FactsJS#constructor', function () {
+        it('should initialize with facts for x and y', function () {
+            var rules = new FactsJS.Rules(),
+                engine = new FactsJS.RulesEngine({
+                    rules: rules,
+                    facts: { x: 1, y: 1 }
+                });
+            assert.equal(engine.fact('x'), 1);
+            assert.equal(engine.fact('y'), 1);
+        });
+
+        it('should fire rules against initial set of facts', function () {
+            var rules = new FactsJS.Rules({
+                    rules: [
+                        {
+                            name: 'x > 2',
+                            condition: FactsJS.Conditions.gt('x', 2),
+                            fire: FactsJS.RulesEngine.setFact('y', 10)
+                        }
+                    ]
+                }),
+                engine = new FactsJS.RulesEngine({
+                    rules: rules,
+                    facts: { x: 3 }
+                });
+
+            assert.equal(engine.fact('y'), 10);
+        });
+    });
+
     describe('FactsJS', function () {
+        var rules, engine;
+
         beforeEach(function () {
             rules = new FactsJS.Rules();
             engine = new FactsJS.RulesEngine({
                 rules: rules,
-                facts: {
-                    x: 1,
-                    y: 1
-                }
+                facts: { x: 1, y: 1 }
             });
         });
 
@@ -34,11 +61,6 @@
                 );
                 assert.deepEqual(anded.deps, ['w', 'x', 'y', 'z']);
             });
-        });
-
-        it('should initialize with facts for x and y', function () {
-            assert.equal(engine.fact('x'), 1);
-            assert.equal(engine.fact('y'), 1);
         });
 
         it('should set y to 10 when x>2 rule fires', function () {
@@ -169,11 +191,13 @@
             it('should fire change events when facts are added', function () {
                 var numChanges = 0;
 
-                rules.add([{
-                    name: 'x > 2',
-                    condition: FactsJS.Conditions.gt('x', 2),
-                    fire: FactsJS.RulesEngine.setFact('y', 10)
-                }]);
+                rules.add([
+                    {
+                        name: 'x > 2',
+                        condition: FactsJS.Conditions.gt('x', 2),
+                        fire: FactsJS.RulesEngine.setFact('y', 10)
+                    }
+                ]);
 
                 engine.addEventListener('change', function (engine, changes) {
                     if (changes.x) {
