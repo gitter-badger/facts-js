@@ -49,7 +49,7 @@
             rules = new FactsJS.Rules();
             engine = new FactsJS.RulesEngine({
                 rules: rules,
-                facts: { x: 1, y: 1 }
+                facts: { x: 1, y: 1, d: { d1a: 2, d1b: { d2a: 3 } } }
             });
         });
 
@@ -96,7 +96,6 @@
             assert.equal(engine.facts.z, 20, 'should have set z since y > 9 now');
         });
 
-
         it('should restore state if a rule throws exception', function () {
             rules.add({
                 name: 'x > 2',
@@ -122,6 +121,29 @@
         });
 
         describe('Using FactsJS.RulesEngine.fact', function () {
+            it('should allow deep gets', function () {
+                assert.equal(engine.fact('d.d1a'), 2);
+                assert.equal(engine.fact('d.d1b.d2a'), 3);
+                assert.equal(engine.fact('d.d1b.d2b.d3a'), undefined);
+            });
+
+            it('should allow deep sets', function () {
+                engine.fact('d.d1b.d2a', 4);
+                assert.equal(engine.fact('d.d1b.d2a'), 4);
+
+                engine.fact('d.d1b.d2c.d3a.d4a', 5);
+                assert.equal(engine.fact('d.d1b.d2c.d3a.d4a'), 5);
+
+                assert.equal(engine.fact('d.d1a'), 2);
+            });
+
+            it('should allow trees to be pruned', function () {
+                engine.fact('d.d1b', false);
+                assert.equal(engine.fact('d.d1b.d2a'), undefined);
+
+                assert.equal(engine.fact('d.d1a'), 2);
+            });
+
             it('should set y to 10 when x>2 rule fires', function () {
                 rules.add({
                     name: 'x > 2',
