@@ -3,6 +3,31 @@
     'use strict';
 
     function declare(_) {
+        function deep(object, path, value) {
+            var keys = path.split('.'),
+                length = keys.length;
+
+            function walk(key, i) {
+                if (_.isObject(object)) {
+                    if (value !== undefined) {
+                        if (i === length - 1) {
+                            object[key] = value;
+                        } else if (!_.isObject(object[key])) {
+                            object[key] = {};
+                        }
+                    }
+
+                    object = object[key];
+                } else {
+                    object = undefined;
+                }
+            }
+
+            _.each(keys, walk);
+
+            return object;
+        }
+
         function Rules(options) {
             var rules = [],
                 nextRuleId = 0;
@@ -111,12 +136,12 @@
 
             this.fact = function (name, value) {
                 if (value === undefined) {
-                    return facts[name];
+                    return deep(facts, name);
                 } else if (facts[name] !== value) {
                     var changes = {},
-                        oldFacts = _.cloneDeep(facts);  // probably needs to be a deep clone
-                    changes[name] = value;
-                    facts[name] = value;
+                        oldFacts = _.cloneDeep(facts);
+                    deep(changes, name, value);
+                    deep(facts, name, value);
                     try {
                         fire(changes);
                         this.notify('change', changes);
@@ -245,14 +270,15 @@
 
     if (typeof module !== 'undefined' && module.exports) { // nodejs
         var lodash = {
+            cloneDeep: require('lodash-node/modern/objects/cloneDeep'),
             each: require('lodash-node/modern/collections/forEach'),
+            extend: require('lodash-node/modern/objects/assign'),
+            intersection: require('lodash-node/modern/arrays/intersection'),
             isArray: require('lodash-node/modern/objects/isArray'),
             isFunction: require('lodash-node/modern/objects/isFunction'),
+            isObject: require('lodash-node/modern/objects/isObject'),
             keys: require('lodash-node/modern/objects/keys'),
-            extend: require('lodash-node/modern/objects/assign'),
-            cloneDeep: require('lodash-node/modern/objects/cloneDeep'),
-            union: require('lodash-node/modern/arrays/union'),
-            intersection: require('lodash-node/modern/arrays/intersection')
+            union: require('lodash-node/modern/arrays/union')
         };
         module.exports = declare(lodash);
     } else if (typeof define !== 'undefined' && define.amd) {
