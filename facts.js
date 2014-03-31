@@ -38,12 +38,14 @@
                 if (!rule.condition.deps) {
                     return true;
                 } else {
-                    return _.intersection(rule.condition.deps, _.keys(changes)).length > 0;
+                    return _.any(rule.condition.deps, function (dep) {
+                        return deep(changes, dep) !== undefined;
+                    });
                 }
             }
 
             function processRule(engine, rule) {
-                var result = rule.condition(engine.facts);
+                var result = rule.condition(engine);
                 if (_.isFunction(result.then)) {
                     result.then(function (promiseResult) {
                         maybeFireRule(engine, rule, promiseResult);
@@ -182,12 +184,12 @@
             }
         }
 
-        function resolveLeft(facts, left) {
-            return typeof(left) === 'function' ? left(facts) : facts[left];
+        function resolveLeft(engine, left) {
+            return typeof(left) === 'function' ? left(engine) : engine.fact(left);
         }
 
-        function resolveRight(facts, right) {
-            return typeof(right) === 'function' ? right(facts) : right;
+        function resolveRight(engine, right) {
+            return typeof(right) === 'function' ? right(engine) : right;
         }
 
         function condFn(fn, components) {
@@ -204,10 +206,19 @@
         }
 
         RulesEngine.fact = function (name) {
-            var getFact = function (facts) {
-                return facts[name];
-            };
-            getFact.deps = [name];
+            var deps = [],
+                nextPrefix,
+                getFact = function (engine) {
+                    return engine.fact(name);
+                };
+
+            _.each(name.split('.'), function (part) {
+                var current = nextPrefix ? nextPrefix + '.' + part : part;
+                deps.push(current);
+                nextPrefix = current;
+            });
+
+            getFact.deps = deps;
             return getFact;
         };
 
@@ -220,48 +231,48 @@
         var Conditions = {
             and: function () {
                 var components = Array.prototype.slice.call(arguments);
-                return condFn(function (facts) {
-                    return _.every(components, function (fn) {
-                        return fn(facts);
+                return condFn(function (engine) {
+                    return _.all(components, function (fn) {
+                        return fn(engine);
                     });
                 }, components);
             },
             or: function () {
                 var components = Array.prototype.slice.call(arguments);
-                return condFn(function (facts) {
-                    return _.some(components, function (fn) {
-                        return fn(facts);
+                return condFn(function (engine) {
+                    return _.any(components, function (fn) {
+                        return fn(engine);
                     });
                 }, components);
             },
             eq: function (fact, value) {
-                return condFn(function (facts) {
-                    return resolveLeft(facts, fact) === resolveRight(facts, value);
+                return condFn(function (engine) {
+                    return resolveLeft(engine, fact) === resolveRight(engine, value);
                 }, [fact, value]);
             },
             neq: function (fact, value) {
-                return condFn(function (facts) {
-                    return resolveLeft(facts, fact) !== resolveRight(facts, value);
+                return condFn(function (engine) {
+                    return resolveLeft(engine, fact) !== resolveRight(engine, value);
                 }, [fact, value]);
             },
             gt: function (fact, value) {
-                return condFn(function (facts) {
-                    return resolveLeft(facts, fact) > resolveRight(facts, value);
+                return condFn(function (engine) {
+                    return resolveLeft(engine, fact) > resolveRight(engine, value);
                 }, [fact, value]);
             },
             lt: function (fact, value) {
-                return condFn(function (facts) {
-                    return resolveLeft(facts, fact) < resolveRight(facts, value);
+                return condFn(function (engine) {
+                    return resolveLeft(engine, fact) < resolveRight(engine, value);
                 }, [fact, value]);
             },
             gte: function (fact, value) {
-                return condFn(function (facts) {
-                    return resolveLeft(facts, fact) >= resolveRight(facts, value);
+                return condFn(function (engine) {
+                    return resolveLeft(engine, fact) >= resolveRight(engine, value);
                 }, [fact, value]);
             },
             lte: function (fact, value) {
-                return condFn(function (facts) {
-                    return resolveLeft(facts, fact) <= resolveRight(facts, value);
+                return condFn(function (engine) {
+                    return resolveLeft(engine, fact) <= resolveRight(engine, value);
                 }, [fact, value]);
             }
         };
@@ -277,8 +288,8 @@
         var lodash = {
             cloneDeep: require('lodash-node/modern/objects/cloneDeep'),
             each: require('lodash-node/modern/collections/forEach'),
-            every: require('lodash-node/modern/collections/every'),
-            some: require('lodash-node/modern/collections/some'),
+            all: require('lodash-node/modern/collections/every'),
+            any: require('lodash-node/modern/collections/some'),
             extend: require('lodash-node/modern/objects/assign'),
             identity: require('lodash-node/modern/utilities/identity'),
             intersection: require('lodash-node/modern/arrays/intersection'),
