@@ -190,14 +190,13 @@
             return typeof(right) === 'function' ? right(facts) : right;
         }
 
-        function condFn(fn, left, right) {
+        function condFn(fn, components) {
             var deps = [];
-            if (typeof(left) === 'function' && left.deps) {
-                deps = _.union(deps, left.deps);
-            }
-            if (typeof(right) === 'function' && right.deps) {
-                deps = _.union(deps, right.deps);
-            }
+            _.each(components, function (component) {
+                if (typeof(component) === 'function' && component.deps) {
+                    deps = _.union(deps, component.deps);
+                }
+            });
             if (deps.length > 0) {
                 fn.deps = deps;
             }
@@ -219,45 +218,51 @@
         };
 
         var Conditions = {
-            and: function (f1, f2) {
+            and: function () {
+                var components = Array.prototype.slice.call(arguments);
                 return condFn(function (facts) {
-                    return f1(facts) && f2(facts);
-                }, f1, f2);
+                    return _.every(components, function (fn) {
+                        return fn(facts);
+                    });
+                }, components);
             },
-            or: function (f1, f2) {
+            or: function () {
+                var components = Array.prototype.slice.call(arguments);
                 return condFn(function (facts) {
-                    return f1(facts) || f2(facts);
-                }, f1, f2);
+                    return _.some(components, function (fn) {
+                        return fn(facts);
+                    });
+                }, components);
             },
             eq: function (fact, value) {
                 return condFn(function (facts) {
                     return resolveLeft(facts, fact) === resolveRight(facts, value);
-                }, fact, value);
+                }, [fact, value]);
             },
             neq: function (fact, value) {
                 return condFn(function (facts) {
                     return resolveLeft(facts, fact) !== resolveRight(facts, value);
-                }, fact, value);
+                }, [fact, value]);
             },
             gt: function (fact, value) {
                 return condFn(function (facts) {
                     return resolveLeft(facts, fact) > resolveRight(facts, value);
-                }, fact, value);
+                }, [fact, value]);
             },
             lt: function (fact, value) {
                 return condFn(function (facts) {
                     return resolveLeft(facts, fact) < resolveRight(facts, value);
-                }, fact, value);
+                }, [fact, value]);
             },
             gte: function (fact, value) {
                 return condFn(function (facts) {
                     return resolveLeft(facts, fact) >= resolveRight(facts, value);
-                }, fact, value);
+                }, [fact, value]);
             },
             lte: function (fact, value) {
                 return condFn(function (facts) {
                     return resolveLeft(facts, fact) <= resolveRight(facts, value);
-                }, fact, value);
+                }, [fact, value]);
             }
         };
 
@@ -272,7 +277,10 @@
         var lodash = {
             cloneDeep: require('lodash-node/modern/objects/cloneDeep'),
             each: require('lodash-node/modern/collections/forEach'),
+            every: require('lodash-node/modern/collections/every'),
+            some: require('lodash-node/modern/collections/some'),
             extend: require('lodash-node/modern/objects/assign'),
+            identity: require('lodash-node/modern/utilities/identity'),
             intersection: require('lodash-node/modern/arrays/intersection'),
             isArray: require('lodash-node/modern/objects/isArray'),
             isFunction: require('lodash-node/modern/objects/isFunction'),

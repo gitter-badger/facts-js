@@ -56,10 +56,51 @@
         describe('And Conditions', function () {
             it('should collect all dependencies', function () {
                 var anded = FactsJS.Conditions.and(
+                    FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('u'), FactsJS.RulesEngine.fact('v')),
                     FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('w'), FactsJS.RulesEngine.fact('x')),
                     FactsJS.Conditions.gt(FactsJS.RulesEngine.fact('y'), FactsJS.RulesEngine.fact('z'))
                 );
-                assert.deepEqual(anded.deps, ['w', 'x', 'y', 'z']);
+                assert.deepEqual(anded.deps, ['u', 'v', 'w', 'x', 'y', 'z']);
+            });
+
+            it('should fire properly with anded condition', function () {
+                rules.add({
+                    name: 'x > 2',
+                    condition: FactsJS.Conditions.and(FactsJS.Conditions.gt('x', 2), FactsJS.Conditions.lt('x', 4)),
+                    fire: FactsJS.RulesEngine.setFact('y', 10)
+                });
+
+                engine.fact('x', 2);
+                assert.equal(engine.fact('y'), 1, 'should not have changed');
+                engine.fact('x', 4);
+                assert.equal(engine.fact('y'), 1, 'should not have changed');
+                engine.fact('x', 3);
+                assert.equal(engine.fact('y'), 10);
+            });
+        });
+
+        describe('Or Conditions', function () {
+            beforeEach(function () {
+                rules.add({
+                    name: 'x > 2',
+                    condition: FactsJS.Conditions.or(FactsJS.Conditions.eq('x', 3), FactsJS.Conditions.eq('x', 4)),
+                    fire: FactsJS.RulesEngine.setFact('y', 10)
+                });
+            });
+
+            it('should not fire when x = 2', function () {
+                engine.fact('x', 2);
+                assert.equal(engine.fact('y'), 1, 'should not have changed');
+            });
+
+            it('should fire when x = 3', function () {
+                engine.fact('x', 3);
+                assert.equal(engine.fact('y'), 10);
+            });
+
+            it('should fire when x = 4', function () {
+                engine.fact('x', 4);
+                assert.equal(engine.fact('y'), 10);
             });
         });
 
