@@ -1,9 +1,15 @@
 {
     "name": "facts-js",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "Rules engine",
     "main": "facts.js",
-    "author": "Jason Horman",
+    "author": "Jason Horman <jhorman@gmail.com>",
+    "contributors": [
+        {
+            "name": "August “Kai” Kaiser",
+            "email": "augustkaiser@gmail.com"
+        }
+    ],
     "keywords": [
         "facts",
         "factsjs",
