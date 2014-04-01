@@ -251,10 +251,38 @@
 
                 engine.fact('d.d1a', 3);
                 assert.equal(engine.fact('y'), 1);
+
                 engine.fact('d.d1a', 4);
                 assert.equal(engine.fact('y'), 10);
+
                 engine.fact('d', {'d1a': 5});
                 assert.equal(engine.fact('d.d1b.d2a'), 4);
+            });
+
+            it('should fire rules on deep pruning', function () {
+                rules.add([{
+                    name: 'd.d1b.d2a > 3',
+                    condition: Conditions.gt(RulesEngine.fact('d.d1b.d2a'), 3),
+                    fire: RulesEngine.setFact('d', false)
+                }, {
+                    name: 'd.d1b.d2a !== 10',
+                    condition: Conditions.neq(RulesEngine.fact('d.d1b.d2a'), 10),
+                    fire: RulesEngine.setFact('x', 8)
+                }, {
+                    name: 'd.d1a === 2',
+                    condition: Conditions.eq(RulesEngine.fact('d.d1a'), 2),
+                    fire: RulesEngine.setFact('y', 4)
+                }]);
+
+                engine.fact('d.d1b.d2a', 10);
+
+                assert.equal(engine.fact('x'), 8);
+                assert.equal(engine.fact('y'), 1);
+
+                assert.equal(
+                    !!engine.fact('d.d1b.d2a') && !!engine.fact('d.d1b') && !!engine.fact('d'),
+                    false
+                );
             });
         });
 
