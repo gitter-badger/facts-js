@@ -2,6 +2,8 @@
 
 [![NPM](https://nodei.co/npm/facts-js.png?r=1)](https://nodei.co/npm/facts-js/)
 
+[![Tests](https://ci.testling.com/hapyak/facts-js.png)](https://ci.testling.com/hapyak/facts-js)
+
 ## Installation
 
 In browsers:
